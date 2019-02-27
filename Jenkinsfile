@@ -57,9 +57,14 @@ node() {
 
         stage('ATH - Jenkins 2.138.4') {
           timeout(time: 90, unit: 'MINUTES') {
-            sh "cd acceptance-tests && ./run.sh -v=2.138.4 --no-selenium --settings='-s ${env.WORKSPACE}/settings.xml'"
-            junit 'acceptance-tests/target/surefire-reports/*.xml'
-            archive 'acceptance-tests/target/screenshots/**/*'
+            sauce('saucelabs') {
+              sauceconnect(options: '', sauceConnectPath: '') {
+                sh "cd acceptance-tests && ./run.sh -v=2.138.4 --host=\$(ip addr | grep 'inet ' | awk '{print $2}' | awk -F/ '{print $1}' | grep -v 127.0.0.1 | head -n 1)  --no-selenium --settings='-s ${env.WORKSPACE}/settings.xml'"
+                junit 'acceptance-tests/target/surefire-reports/*.xml'
+                archive 'acceptance-tests/target/screenshots/**/*'
+                saucePublisher()
+              }
+            }
           }
         }
 
