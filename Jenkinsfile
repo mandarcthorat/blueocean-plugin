@@ -32,7 +32,7 @@ node() {
   try {
     docker.image('blueocean_build_env').inside("--net=container:blueo-selenium") {
       withEnv(['GIT_COMMITTER_EMAIL=me@hatescake.com','GIT_COMMITTER_NAME=Hates','GIT_AUTHOR_NAME=Cake','GIT_AUTHOR_EMAIL=hates@cake.com']) {
-        ip = sh(returnStdout: true, script: "ip addr | grep 'inet ' | awk '{print \$2}' | awk -F/ '{print $1}' | grep -v 127.0.0.1 | head -n 1")
+        ip = sh(returnStdout: true, script: "ip addr | grep 'inet ' | awk '{print \$2}' | awk -F/ '{print $\1}' | grep -v 127.0.0.1 | head -n 1")
 
         stage('Sanity check dependencies') {
           sh "node ./bin/checkdeps.js"
