@@ -32,6 +32,8 @@ node() {
   try {
     docker.image('blueocean_build_env').inside("--net=container:blueo-selenium") {
       withEnv(['GIT_COMMITTER_EMAIL=me@hatescake.com','GIT_COMMITTER_NAME=Hates','GIT_AUTHOR_NAME=Cake','GIT_AUTHOR_EMAIL=hates@cake.com']) {
+        ip = sh(returnStdout: true, script: "ip addr | grep 'inet ' | awk '{print $2}' | awk -F/ '{print $1}' | grep -v 127.0.0.1 | head -n 1")
+
         stage('Sanity check dependencies') {
           sh "node ./bin/checkdeps.js"
           sh "node ./bin/checkshrinkwrap.js"
@@ -59,7 +61,7 @@ node() {
           timeout(time: 90, unit: 'MINUTES') {
             sauce('saucelabs') {
               sauceconnect(options: '', sauceConnectPath: '') {
-                sh "cd acceptance-tests && ./run.sh -v=2.138.4 --host=\$(ip addr | grep 'inet ' | awk '{print $2}' | awk -F/ '{print $1}' | grep -v 127.0.0.1 | head -n 1)  --no-selenium --settings='-s ${env.WORKSPACE}/settings.xml'"
+                sh "cd acceptance-tests && ./run.sh -v=2.138.4 --host=${ip}  --no-selenium --settings='-s ${env.WORKSPACE}/settings.xml'"
                 junit 'acceptance-tests/target/surefire-reports/*.xml'
                 archive 'acceptance-tests/target/screenshots/**/*'
                 saucePublisher()
