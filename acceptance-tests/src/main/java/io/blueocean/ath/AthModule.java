@@ -85,6 +85,9 @@ public class AthModule extends AbstractModule {
                 LocalDriver.enableSauce();
                 System.out.println("SauceOnDemandSessionID=" + ((RemoteWebDriver) driver).getSessionId().toString());
             }
+            if (cfg.getString("TUNNEL_IDENTIFIER")) {
+                capability.setCapability("tunnelIdentifier", cfg.getString("TUNNEL_IDENTIFIER"));
+            }
 
             driver = new Augmenter().augment(driver);
             if (webDriverBrowserSize == null) {

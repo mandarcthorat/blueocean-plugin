@@ -62,9 +62,8 @@ node() {
 
         stage('ATH - Jenkins 2.138.4') {
           sauce('saucelabs') {
-            sauceconnect(options: '', sauceConnectPath: '') {
-              withEnv(["webDriverUrl=http://${env.SAUCE_USERNAME}:${env.SAUCE_ACCESS_KEY}@${env.SELENIUM_HOST}:${env.SELENIUM_PORT}/wd/hub","saucelabs=true"]) {
-                sleep(time: 20, unit: 'MINUTES')
+            sauceconnect(useGeneratedTunnelIdentifier: true, verboseLogging: true) {
+              withEnv(["webDriverUrl=https://${env.SAUCE_USERNAME}:${env.SAUCE_ACCESS_KEY}@ondemand.saucelabs.com/wd/hub","saucelabs=true"]) {
                 timeout(time: 90, unit: 'MINUTES') {
                   sh "cd acceptance-tests && ./run.sh -v=2.138.4 --host=${ip}  --no-selenium --settings='-s ${env.WORKSPACE}/settings.xml'"
                   junit 'acceptance-tests/target/surefire-reports/*.xml'
