@@ -61,10 +61,12 @@ node() {
           timeout(time: 90, unit: 'MINUTES') {
             sauce('saucelabs') {
               sauceconnect(options: '', sauceConnectPath: '') {
-                sh "cd acceptance-tests && ./run.sh -v=2.138.4 --host=${ip}  --no-selenium --settings='-s ${env.WORKSPACE}/settings.xml'"
-                junit 'acceptance-tests/target/surefire-reports/*.xml'
-                archive 'acceptance-tests/target/screenshots/**/*'
-                saucePublisher()
+                withEnv(["webDriverUrl=http://${env.SAUCE_USERNAME}:${env.SAUCE_ACCESS_KEY}@${env.SELENIUM_HOST}:${env.SELENIUM_PORT}/wd/hub","saucelabs=true"]) {
+                  sh "cd acceptance-tests && ./run.sh -v=2.138.4 --host=${ip}  --no-selenium --settings='-s ${env.WORKSPACE}/settings.xml'"
+                  junit 'acceptance-tests/target/surefire-reports/*.xml'
+                  archive 'acceptance-tests/target/screenshots/**/*'
+                  saucePublisher()
+                }
               }
             }
           }
