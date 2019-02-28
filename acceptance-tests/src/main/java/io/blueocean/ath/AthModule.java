@@ -22,6 +22,7 @@ import io.blueocean.ath.pages.blue.PullRequestsPage;
 import io.blueocean.ath.pages.blue.RunDetailsArtifactsPage;
 import io.blueocean.ath.pages.blue.RunDetailsPipelinePage;
 import io.blueocean.ath.pages.blue.RunDetailsTestsPage;
+import jdk.internal.joptsimple.internal.Strings;
 import org.apache.log4j.Logger;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.MutableCapabilities;
@@ -85,7 +86,7 @@ public class AthModule extends AbstractModule {
                 LocalDriver.enableSauce();
                 System.out.println("SauceOnDemandSessionID=" + ((RemoteWebDriver) driver).getSessionId().toString());
             }
-            if (cfg.getString("TUNNEL_IDENTIFIER")) {
+            if (!Strings.isNullOrEmpty(cfg.getString("TUNNEL_IDENTIFIER"))) {
                 capability.setCapability("tunnelIdentifier", cfg.getString("TUNNEL_IDENTIFIER"));
             }
 
