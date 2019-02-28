@@ -84,18 +84,18 @@ node() {
             }
           }
         }
-      }
-    } catch(err) {
-      currentBuild.result = "FAILURE"
+      } catch(err) {
+        currentBuild.result = "FAILURE"
 
-      if (err.toString().contains('exit code 143')) {
-        currentBuild.result = "ABORTED"
-      }
-    } finally {
-      stage('Cleanup') {
-        sh "${env.WORKSPACE}/acceptance-tests/runner/scripts/stop-sc.sh"
-        sh "${env.WORKSPACE}/acceptance-tests/runner/scripts/stop-bitbucket-server.sh"
-        deleteDir()
+        if (err.toString().contains('exit code 143')) {
+          currentBuild.result = "ABORTED"
+        }
+      } finally {
+        stage('Cleanup') {
+          sh "${env.WORKSPACE}/acceptance-tests/runner/scripts/stop-sc.sh"
+          sh "${env.WORKSPACE}/acceptance-tests/runner/scripts/stop-bitbucket-server.sh"
+          deleteDir()
+        }
       }
     }
   }
