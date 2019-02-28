@@ -57,14 +57,12 @@ node() {
               sh "mvn clean install -V -B -DcleanNode -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -Dmaven.test.failure.ignore -s settings.xml -Dmaven.artifact.threads=30 -DskipTests -Denforcer.skip=true"
             }
 
-            /*
-            junit '**/target/surefire-reports/TEST-*.xml'
-            junit '**/target/jest-reports/*.xml'
-            jacoco execPattern: '**/target/jacoco.exec', classPattern : '**/target/classes', sourcePattern: '**/src/main/java', exclusionPattern: 'src/test*'
-            archive '*/target/code-coverage/**/*'
-            archive '*/target/*.hpi'
-            archive '*/target/jest-coverage/**/*'
-            */
+            // junit '**/target/surefire-reports/TEST-*.xml'
+            // junit '**/target/jest-reports/*.xml'
+            // jacoco execPattern: '**/target/jacoco.exec', classPattern : '**/target/classes', sourcePattern: '**/src/main/java', exclusionPattern: 'src/test*'
+            // archive '*/target/code-coverage/**/*'
+            // archive '*/target/*.hpi'
+            // archive '*/target/jest-coverage/**/*'
           }
 
           weeklyAth.each { version ->
