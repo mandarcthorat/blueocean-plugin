@@ -11,7 +11,11 @@ if (JENKINS_URL == 'https://ci.jenkins.io/') {
 // only 20 builds
 properties([buildDiscarder(logRotator(artifactNumToKeepStr: '20', numToKeepStr: '20'))])
 
-weeklyAth = ['2.121.1', '2.150.3']
+weeklyAth = ['2.138.4']
+if (env.JOB_NAME =~ 'blueocean-weekly-ath') {
+  weeklyAth.add('2.121.1')
+  weeklyAth.add('2.150.3')
+}
 
 node() {
   sauce('saucelabs') {
@@ -28,12 +32,12 @@ node() {
       withCredentials([file(credentialsId: 'blueocean-ath-private-repo-key', variable: 'FILE')]) {
         sh 'mv $FILE acceptance-tests/bo-ath.key'
       }
-      sh "./acceptance-tests/runner/scripts/start-sc.sh"
+      sh "bash -x ./acceptance-tests/runner/scripts/start-sc.sh"
       sh "./acceptance-tests/runner/scripts/start-bitbucket-server.sh"
     }
 
-    docker.image('blueocean_build_env').inside("--net=container:blueo-selenium") {
-      try {
+    try {
+      docker.image('blueocean_build_env').inside("--net=container:blueo-selenium") {
         withEnv(['GIT_COMMITTER_EMAIL=me@hatescake.com','GIT_COMMITTER_NAME=Hates','GIT_AUTHOR_NAME=Cake','GIT_AUTHOR_EMAIL=hates@cake.com']) {
           ip = sh(returnStdout: true, script: "hostname -I  | awk '{print \$1}'")
           echo "IP: ${ip}"
@@ -50,52 +54,46 @@ node() {
 
           stage('Building BlueOcean') {
             timeout(time: 90, unit: 'MINUTES') {
-              sh "mvn clean install -V -B -DcleanNode -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -Dmaven.test.failure.ignore -s settings.xml -Dmaven.artifact.threads=30"
+              sh "mvn clean install -V -B -DcleanNode -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -Dmaven.test.failure.ignore -s settings.xml -Dmaven.artifact.threads=30 -DskipTests -Denforcer.skip=true"
             }
 
+            /*
             junit '**/target/surefire-reports/TEST-*.xml'
             junit '**/target/jest-reports/*.xml'
             jacoco execPattern: '**/target/jacoco.exec', classPattern : '**/target/classes', sourcePattern: '**/src/main/java', exclusionPattern: 'src/test*'
             archive '*/target/code-coverage/**/*'
             archive '*/target/*.hpi'
             archive '*/target/jest-coverage/**/*'
+            */
           }
 
-          stage('ATH - Jenkins 2.138.4') {
-            withEnv(["webDriverUrl=https://${env.SAUCE_USERNAME}:${env.SAUCE_ACCESS_KEY}@ondemand.saucelabs.com/wd/hub","saucelabs=true", "TUNNEL_IDENTIFIER=$BUILD_TAG"]) {
-              timeout(time: 90, unit: 'MINUTES') {
-                sh "cd acceptance-tests && ./run.sh -v=2.138.4 --host=${ip}  --no-selenium --settings='-s ${env.WORKSPACE}/settings.xml'"
-                junit 'acceptance-tests/target/surefire-reports/*.xml'
-                archive 'acceptance-tests/target/screenshots/**/*'
-                saucePublisher()
-              }
-            }
-          }
-        }
-
-        if (env.JOB_NAME =~ 'blueocean-weekly-ath') {
           weeklyAth.each { version ->
-            timeout(time: 90, unit: 'MINUTES') {
-              withEnv(["webDriverUrl=http://${env.SAUCE_USERNAME}:${env.SAUCE_ACCESS_KEY}@${env.SELENIUM_HOST}:${env.SELENIUM_PORT}/wd/hub","saucelabs=true", "TUNNEL_IDENTIFIER=$BUILD_TAG"]) {
-                sh "cd acceptance-tests && ./run.sh -v=${version} --host=${ip}  --no-selenium --settings='-s ${env.WORKSPACE}/settings.xml'"
-                junit 'acceptance-tests/target/surefire-reports/*.xml'
-                saucePublisher()
+            stage("ATH - Jenkins ${version}") {
+              withEnv(["webDriverUrl=https://${env.SAUCE_USERNAME}:${env.SAUCE_ACCESS_KEY}@ondemand.saucelabs.com/wd/hub","saucelabs=true", "TUNNEL_IDENTIFIER=$BUILD_TAG"]) {
+                timeout(time: 90, unit: 'MINUTES') {
+                  dir('acceptance-tests') {
+                    sh "bash -x ./run.sh -v=${version} --host=${ip} --no-selenium --settings='-s ${env.WORKSPACE}/settings.xml'"
+                    junit './target/surefire-reports/*.xml'
+                    archive './target/screenshots/**/*'
+                    saucePublisher()
+                  }
+                }
               }
             }
           }
         }
-      } catch(err) {
-        currentBuild.result = "FAILURE"
+      }
+    } catch(err) {
+      currentBuild.result = "FAILURE"
 
-        if (err.toString().contains('exit code 143')) {
-          currentBuild.result = "ABORTED"
-        }
-      } finally {
-        stage('Cleanup') {
-          sh "${env.WORKSPACE}/acceptance-tests/runner/scripts/stop-sc.sh"
-          sh "${env.WORKSPACE}/acceptance-tests/runner/scripts/stop-bitbucket-server.sh"
-          deleteDir()
-        }
+      if (err.toString().contains('exit code 143')) {
+        currentBuild.result = "ABORTED"
+      }
+    } finally {
+      stage('Cleanup') {
+        sh "${env.WORKSPACE}/acceptance-tests/runner/scripts/stop-sc.sh"
+        sh "${env.WORKSPACE}/acceptance-tests/runner/scripts/stop-bitbucket-server.sh"
+        deleteDir()
       }
     }
   }
