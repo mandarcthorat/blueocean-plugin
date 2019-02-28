@@ -1,5 +1,6 @@
 package io.blueocean.ath;
 
+import com.google.common.base.Strings;
 import com.google.inject.AbstractModule;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
 import com.google.inject.name.Names;
@@ -22,8 +23,6 @@ import io.blueocean.ath.pages.blue.PullRequestsPage;
 import io.blueocean.ath.pages.blue.RunDetailsArtifactsPage;
 import io.blueocean.ath.pages.blue.RunDetailsPipelinePage;
 import io.blueocean.ath.pages.blue.RunDetailsTestsPage;
-import jdk.internal.joptsimple.internal.Strings;
-import org.apache.log4j.Logger;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.MutableCapabilities;
 import org.openqa.selenium.WebDriver;
@@ -33,7 +32,6 @@ import org.openqa.selenium.logging.LogType;
 import org.openqa.selenium.logging.LoggingPreferences;
 import org.openqa.selenium.remote.Augmenter;
 import org.openqa.selenium.remote.CapabilityType;
-import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
 
 import java.io.File;
@@ -46,8 +44,6 @@ import java.util.Properties;
 import java.util.logging.Level;
 
 public class AthModule extends AbstractModule {
-    private static final Logger logger = Logger.getLogger(AthModule.class);
-
     @Override
     protected void configure() {
         Config cfg = new Config();
