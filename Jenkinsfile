@@ -49,7 +49,7 @@ node() {
 
         stage('Building BlueOcean') {
           timeout(time: 90, unit: 'MINUTES') {
-            sh "mvn clean install -V -B -DcleanNode -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -Dmaven.test.failure.ignore -s settings.xml -Dmaven.artifact.threads=30"
+            sh "mvn clean install -V -B -DcleanNode -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -Dmaven.test.failure.ignore -s settings.xml -Dmaven.artifact.threads=30 -DskipTests -Denforcer.skip=true"
           }
 
           junit '**/target/surefire-reports/TEST-*.xml'
