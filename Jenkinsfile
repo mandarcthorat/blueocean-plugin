@@ -11,6 +11,8 @@ if (JENKINS_URL == 'https://ci.jenkins.io/') {
 // only 20 builds
 properties([buildDiscarder(logRotator(artifactNumToKeepStr: '20', numToKeepStr: '20'))])
 
+weeklyAth = ['2.121.1', '2.150.3']
+
 node() {
   stage('Setup') {
     deleteDir()
@@ -73,21 +75,18 @@ node() {
         }
 
         if (env.JOB_NAME =~ 'blueocean-weekly-ath') {
-          stage('ATH - Jenkins 2.73.2') {
-            sh "cd acceptance-tests && ./run.sh -v=2.73.2 --no-selenium --settings='-s ${env.WORKSPACE}/settings.xml'"
-            junit 'acceptance-tests/target/surefire-reports/*.xml'
-          }
-          stage('ATH - Jenkins 2.73.3') {
-            sh "cd acceptance-tests && ./run.sh -v=2.73.3 --no-selenium --settings='-s ${env.WORKSPACE}/settings.xml'"
-            junit 'acceptance-tests/target/surefire-reports/*.xml'
-          }
-          stage('ATH - Jenkins 2.107.2') {
-            sh "cd acceptance-tests && ./run.sh -v=2.107.2 --no-selenium --settings='-s ${env.WORKSPACE}/settings.xml'"
-            junit 'acceptance-tests/target/surefire-reports/*.xml'
-          }
-          stage('ATH - Jenkins 2.121.1') {
-            sh "cd acceptance-tests && ./run.sh -v=2.121.1 --no-selenium --settings='-s ${env.WORKSPACE}/settings.xml'"
-            junit 'acceptance-tests/target/surefire-reports/*.xml'
+          weeklyAth.each { version ->
+            timeout(time: 90, unit: 'MINUTES') {
+              sauce('saucelabs') {
+                sauceconnect(options: '', sauceConnectPath: '') {
+                  withEnv(["webDriverUrl=http://${env.SAUCE_USERNAME}:${env.SAUCE_ACCESS_KEY}@${env.SELENIUM_HOST}:${env.SELENIUM_PORT}/wd/hub","saucelabs=true"]) {
+                    sh "cd acceptance-tests && ./run.sh -v=${version} --host=${ip}  --no-selenium --settings='-s ${env.WORKSPACE}/settings.xml'"
+                    junit 'acceptance-tests/target/surefire-reports/*.xml'
+                    saucePublisher()
+                  }
+                }
+              }
+            }
           }
         }
       }
