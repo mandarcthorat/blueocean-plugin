@@ -71,8 +71,8 @@ node() {
                 timeout(time: 90, unit: 'MINUTES') {
                   dir('acceptance-tests') {
                     sh "bash -x ./run.sh -v=${version} --host=${ip} --no-selenium --settings='-s ${env.WORKSPACE}/settings.xml'"
-                    junit './target/surefire-reports/*.xml'
-                    archive './target/screenshots/**/*'
+                    junit '**/target/surefire-reports/*.xml'
+                    archive '**/target/screenshots/**/*'
                     saucePublisher()
                   }
                 }
