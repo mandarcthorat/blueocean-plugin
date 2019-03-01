@@ -32,8 +32,8 @@ node() {
       withCredentials([file(credentialsId: 'blueocean-ath-private-repo-key', variable: 'FILE')]) {
         sh 'mv $FILE acceptance-tests/bo-ath.key'
       }
-      // sh "./acceptance-tests/runner/scripts/start-sc.sh"
-      // sh "./acceptance-tests/runner/scripts/start-bitbucket-server.sh"
+      sh "./acceptance-tests/runner/scripts/start-sc.sh"
+      sh "./acceptance-tests/runner/scripts/start-bitbucket-server.sh"
     }
 
     try {
