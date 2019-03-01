@@ -32,8 +32,8 @@ node() {
       withCredentials([file(credentialsId: 'blueocean-ath-private-repo-key', variable: 'FILE')]) {
         sh 'mv $FILE acceptance-tests/bo-ath.key'
       }
-      sh "bash -x ./acceptance-tests/runner/scripts/start-sc.sh"
-      sh "./acceptance-tests/runner/scripts/start-bitbucket-server.sh"
+      // sh "./acceptance-tests/runner/scripts/start-sc.sh"
+      // sh "./acceptance-tests/runner/scripts/start-bitbucket-server.sh"
     }
 
     try {
@@ -43,13 +43,13 @@ node() {
           echo "IP: [${ip}]"
 
           stage('Sanity check dependencies') {
-            sh "node ./bin/checkdeps.js"
-            sh "node ./bin/checkshrinkwrap.js"
+            // sh "node ./bin/checkdeps.js"
+            // sh "node ./bin/checkshrinkwrap.js"
           }
 
           stage('Building JS Libraries') {
-            sh 'node -v && npm -v'
-            sh 'npm --prefix ./js-extensions run build'
+            // sh 'node -v && npm -v'
+            // sh 'npm --prefix ./js-extensions run build'
           }
 
           stage('Building BlueOcean') {
@@ -71,7 +71,7 @@ node() {
                 timeout(time: 90, unit: 'MINUTES') {
                   dir('acceptance-tests') {
                     // sh "bash -x ./run.sh -v=${version} --host=${ip} --no-selenium --settings='-s ${env.WORKSPACE}/settings.xml'"
-                    export
+                    sh 'export'
                     junit './target/surefire-reports/*.xml'
                     archive './target/screenshots/**/*'
                     saucePublisher()
