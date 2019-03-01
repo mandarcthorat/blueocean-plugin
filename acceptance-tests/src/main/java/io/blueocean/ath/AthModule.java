@@ -75,15 +75,15 @@ public class AthModule extends AbstractModule {
             }
             capability.setCapability("extendedDebugging", "true");
             capability.setCapability("initialBrowserUrl", launchUrl);
+            if (!Strings.isNullOrEmpty(cfg.getString("TUNNEL_IDENTIFIER"))) {
+                capability.setCapability("tunnelIdentifier", cfg.getString("TUNNEL_IDENTIFIER"));
+            }
 
             WebDriver driver = new RemoteWebDriver(new URL(webDriverUrl), capability);
             LocalDriver.setCurrent(driver);
             if (cfg.getBoolean("saucelabs", false)) {
                 LocalDriver.enableSauce();
                 System.out.println("SauceOnDemandSessionID=" + ((RemoteWebDriver) driver).getSessionId().toString());
-            }
-            if (!Strings.isNullOrEmpty(cfg.getString("TUNNEL_IDENTIFIER"))) {
-                capability.setCapability("tunnelIdentifier", cfg.getString("TUNNEL_IDENTIFIER"));
             }
 
             driver = new Augmenter().augment(driver);
@@ -98,7 +98,6 @@ public class AthModule extends AbstractModule {
 
             bindConstant().annotatedWith(BaseUrl.class).to(launchUrl);
             LocalDriver.setUrlBase(launchUrl);
-            System.out.println(capability.toJson().toString());
 
             JenkinsUser admin = new JenkinsUser(
                 cfg.getString("adminUsername", "alice"),
