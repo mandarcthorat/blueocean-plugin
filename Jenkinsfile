@@ -39,7 +39,7 @@ node() {
     try {
       docker.image('blueocean_build_env').inside("--net=container:blueo-selenium") {
         withEnv(['GIT_COMMITTER_EMAIL=me@hatescake.com','GIT_COMMITTER_NAME=Hates','GIT_AUTHOR_NAME=Cake','GIT_AUTHOR_EMAIL=hates@cake.com']) {
-          ip = sh(returnStdout: true, script: "hostname -I  | awk '{print \$1}'").trim()
+          ip = sh(returnStdout: true, script: "hostname -I  | awk '{print \$1}'")
           echo "IP: [${ip}]"
 
           stage('Sanity check dependencies') {
