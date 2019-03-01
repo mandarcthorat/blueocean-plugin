@@ -98,6 +98,7 @@ public class AthModule extends AbstractModule {
 
             bindConstant().annotatedWith(BaseUrl.class).to(launchUrl);
             LocalDriver.setUrlBase(launchUrl);
+            System.out.println(capability.toJson().toString());
 
             JenkinsUser admin = new JenkinsUser(
                 cfg.getString("adminUsername", "alice"),

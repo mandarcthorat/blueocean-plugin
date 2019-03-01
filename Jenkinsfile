@@ -37,11 +37,8 @@ node() {
     }
 
     try {
-      echo "docker.image"
       docker.image('blueocean_build_env').inside("--net=container:blueo-selenium") {
-        echo "before withEnv"
         withEnv(['GIT_COMMITTER_EMAIL=me@hatescake.com','GIT_COMMITTER_NAME=Hates','GIT_AUTHOR_NAME=Cake','GIT_AUTHOR_EMAIL=hates@cake.com']) {
-          echo "start"
           ip = sh(returnStdout: true, script: "hostname -I  | awk '{print \$1}'").trim()
           echo "IP: [${ip}]"
 
@@ -74,9 +71,7 @@ node() {
               withEnv(["webDriverUrl=https://${env.SAUCE_USERNAME}:${env.SAUCE_ACCESS_KEY}@ondemand.saucelabs.com/wd/hub","saucelabs=true", "TUNNEL_IDENTIFIER=${env.BUILD_TAG}"]) {
                 timeout(time: 90, unit: 'MINUTES') {
                   dir('acceptance-tests') {
-                    sh 'echo stage'
-                    // sh "bash -x ./run.sh -v=${version} --host=${ip} --no-selenium --settings='-s ${env.WORKSPACE}/settings.xml'"
-                    sh 'export'
+                    sh "bash -x ./run.sh -v=${version} --host=${ip} --no-selenium --settings='-s ${env.WORKSPACE}/settings.xml'"
                     junit './target/surefire-reports/*.xml'
                     archive './target/screenshots/**/*'
                     saucePublisher()
