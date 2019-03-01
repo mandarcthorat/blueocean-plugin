@@ -43,34 +43,32 @@ node() {
           echo "IP: [${ip}]"
 
           stage('Sanity check dependencies') {
-            // sh "node ./bin/checkdeps.js"
-            // sh "node ./bin/checkshrinkwrap.js"
+            sh "node ./bin/checkdeps.js"
+            sh "node ./bin/checkshrinkwrap.js"
           }
 
           stage('Building JS Libraries') {
-            // sh 'node -v && npm -v'
-            // sh 'npm --prefix ./js-extensions run build'
+            sh 'node -v && npm -v'
+            sh 'npm --prefix ./js-extensions run build'
           }
 
           stage('Building BlueOcean') {
             timeout(time: 90, unit: 'MINUTES') {
-              // sh "mvn clean install -V -B -DcleanNode -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -Dmaven.test.failure.ignore -s settings.xml -Dmaven.artifact.threads=30 -DskipTests -Denforcer.skip=true"
-              sh 'echo stage'
+              sh "mvn clean install -V -B -DcleanNode -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -Dmaven.test.failure.ignore -s settings.xml -Dmaven.artifact.threads=30 -DskipTests -Denforcer.skip=true"
             }
 
-            // junit '**/target/surefire-reports/TEST-*.xml'
-            // junit '**/target/jest-reports/*.xml'
-            // jacoco execPattern: '**/target/jacoco.exec', classPattern : '**/target/classes', sourcePattern: '**/src/main/java', exclusionPattern: 'src/test*'
-            // archive '*/target/code-coverage/**/*'
-            // archive '*/target/*.hpi'
-            // archive '*/target/jest-coverage/**/*'
+            junit '**/target/surefire-reports/TEST-*.xml'
+            junit '**/target/jest-reports/*.xml'
+            jacoco execPattern: '**/target/jacoco.exec', classPattern : '**/target/classes', sourcePattern: '**/src/main/java', exclusionPattern: 'src/test*'
+            archive '*/target/code-coverage/**/*'
+            archive '*/target/*.hpi'
+            archive '*/target/jest-coverage/**/*'
           }
 
           weeklyAth.each { version ->
             stage("ATH - Jenkins ${version}") {
               withEnv(["webDriverUrl=https://${env.SAUCE_USERNAME}:${env.SAUCE_ACCESS_KEY}@ondemand.saucelabs.com/wd/hub","saucelabs=true", "TUNNEL_IDENTIFIER=${env.BUILD_TAG}"]) {
                 timeout(time: 90, unit: 'MINUTES') {
-                  sh "perl -pi -e 's{<revision>.*</revision>}{<revision>1.11.1</revision>}g;s{<changelist>-SNAPSHOT</changelist>}{<changelist></changelist>}g' pom.xml"
                   dir('acceptance-tests') {
                     sh "bash -x ./run.sh -v=${version} --host=${ip} --no-selenium --settings='-s ${env.WORKSPACE}/settings.xml'"
                     junit './target/surefire-reports/*.xml'
