@@ -55,6 +55,7 @@ node() {
           stage('Building BlueOcean') {
             timeout(time: 90, unit: 'MINUTES') {
               // sh "mvn clean install -V -B -DcleanNode -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -Dmaven.test.failure.ignore -s settings.xml -Dmaven.artifact.threads=30 -DskipTests -Denforcer.skip=true"
+              sh 'echo stage'
             }
 
             // junit '**/target/surefire-reports/TEST-*.xml'
@@ -70,6 +71,7 @@ node() {
               withEnv(["webDriverUrl=https://${env.SAUCE_USERNAME}:${env.SAUCE_ACCESS_KEY}@ondemand.saucelabs.com/wd/hub","saucelabs=true", "TUNNEL_IDENTIFIER=${env.BUILD_TAG}"]) {
                 timeout(time: 90, unit: 'MINUTES') {
                   dir('acceptance-tests') {
+                    sh 'echo stage'
                     // sh "bash -x ./run.sh -v=${version} --host=${ip} --no-selenium --settings='-s ${env.WORKSPACE}/settings.xml'"
                     sh 'export'
                     junit './target/surefire-reports/*.xml'
