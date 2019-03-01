@@ -70,6 +70,7 @@ node() {
             stage("ATH - Jenkins ${version}") {
               withEnv(["webDriverUrl=https://${env.SAUCE_USERNAME}:${env.SAUCE_ACCESS_KEY}@ondemand.saucelabs.com/wd/hub","saucelabs=true", "TUNNEL_IDENTIFIER=${env.BUILD_TAG}"]) {
                 timeout(time: 90, unit: 'MINUTES') {
+                  sh "perl -pi -e 's{<revision>.*</revision>}{<revision>1.11.1</revision>}g;s{<changelist>-SNAPSHOT</changelist>}{<changelist></changelist>}g' pom.xml"
                   dir('acceptance-tests') {
                     sh "bash -x ./run.sh -v=${version} --host=${ip} --no-selenium --settings='-s ${env.WORKSPACE}/settings.xml'"
                     junit './target/surefire-reports/*.xml'
